@@ -6,12 +6,21 @@ Este `Vagrantfile` provisiona 6 máquinas virtuais: 3 máquinas de banco de dado
 
 Para provisionar as máquinas, instale o [Vagrant](https://www.vagrantup.com/) em sua máquina, além de um *hypervisor*, como o [VirtualBox](https://www.virtualbox.org/) ou o [Libvirt](https://libvirt.org/). O Hyper-V não é compatível com a definição de endereços IP fixos.
 
-Clone este repositório ou baixe o arquivo do Vagrant em [vagrant-mysql.zip](https://storage.googleapis.com/4805-repositorio/vagrant-mysql/vagrant-mysql.zip) e descompacte-o. Em seguida, inicie as máquinas com o Vagrant:
+Observe que o provisionamento das VMs depende de ter o Virtual Guest Additions funcional. Caso esteja com problemas,
+verifique a seção [Resolvendo Problemas](#resolvendo-problemas) neste README.
+
+## Obtendo os arquivos.
+
+Clone este repositório ou baixe o arquivo do Vagrant em [vagrant-mysql.zip](https://storage.googleapis.com/4805-repositorio/vagrant-mysql/vagrant-mysql.zip) e descompacte-o.
 
 ```bash
-wget https://storage.googleapis.com/4805-repositorio/vagrant-mysql/vagrant-mysql.zip
 unzip vagrant-mysql.zip
 cd vagrant-mysql/
+```
+
+Em seguida, inicie as máquinas com o Vagrant:
+
+```bash
 vagrant up
 ```
 
@@ -55,3 +64,35 @@ vagrant ssh db1
 | haproxy   | Debian 12     | 172.27.11.40 |
 | monitor   | Debian 12     | 172.27.11.50 |
 | rhel-demo | AlmaLinux EL9 | 172.27.11.60 |
+
+## Resolvendo problemas
+
+Pode ser que a versão do Virtual Guest Additions instalada seja incompatível com a versão do Virtualbox que você tenha
+instalado na máquina hospedeira.
+
+Se isso ocorrer, você teria que resolver essa questão manualmente.
+
+Para evitar isso, instale o plug-in do Vagrant chamado vbguest:
+
+```bash
+vagrant plugin install vbguest
+```
+
+Caso você já tenha o plug-in instalado, pode ser que vbguest falhe por não achar o pacote correto para instalar e criar
+o módulo do Virtual Guest Additions junto ao kernel atualizado.
+
+Para que isso funcione, ajuste a linha de configuração no `Vagrantfile` conforme mostrado abaixo:
+
+```ruby
+my.vbguest.auto_update = false
+```
+
+Repita o provisionamento com o Vagrant (o exemplo abaixo usa a VM "db1"):
+
+```bash
+vagrant reload db1 --provision
+```
+
+Isso vai reiniciar a VM e atualizar os pacotes, e aí com o kernel novo instalado, o vbguest conseguirá fazer o seu
+trabalho. Então permita que ele faça seu trabalho alterando a mesma linha no `Vagrantfile` para que fique igual a
+`true`, e então repita o mesmo comando de `reload` para isto aconteça.
