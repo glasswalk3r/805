@@ -1,11 +1,18 @@
 #!/bin/bash
 
-# Copia a chave SSH
-mkdir -p /root/.ssh
-cp /vagrant/files/key /root/.ssh/id_rsa
-cp /vagrant/files/key.pub /root/.ssh/id_rsa.pub
-cp /vagrant/files/key.pub /root/.ssh/authorized_keys
-chmod 400 /root/.ssh/*
+set -eo pipefail
+
+if [[ -d /vagrant ]]
+then
+    for file in /vagrant/files/key /vagrant/files/key.pub /vagrant/files/key.pub
+    do
+        if [[ -f $file ]]
+        then
+            cp -v $file /root/.ssh/
+        fi
+    done
+    chmod 400 /root/.ssh/*
+fi
 
 # Cria swap se não existir
 if [ "$(swapon -v)" == "" ]; then
