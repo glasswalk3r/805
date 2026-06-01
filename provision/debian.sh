@@ -28,4 +28,7 @@ else
     echo 'Swap file already created'
 fi
 
-apt-get update && apt-get install -y gnupg2 vim
+export DEBIAN_FRONTEND=noninteractive
+
+apt-get update && apt-get upgrade -y && \
+    apt-get install -y gnupg2 vim linux-image-amd64 zstd build-essential dkms
