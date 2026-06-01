@@ -15,12 +15,17 @@ then
 fi
 
 # Cria swap se não existir
-if [ "$(swapon -v)" == "" ]; then
-  dd if=/dev/zero of=/swapfile bs=1M count=512
-  chmod 0600 /swapfile
-  mkswap /swapfile
-  swapon /swapfile
-  echo '/swapfile       swap    swap    defaults        0       0' >> /etc/fstab
+swap_check=$(swapon -v)
+
+if [[ -z $swap_check ]]
+then
+    dd if=/dev/zero of=/swapfile bs=1M count=512
+    chmod 0600 /swapfile
+    mkswap /swapfile
+    swapon /swapfile
+    echo '/swapfile       swap    swap    defaults        0       0' >> /etc/fstab
+else
+    echo 'Swap file already created'
 fi
 
 apt-get update && apt-get install -y gnupg2 vim
