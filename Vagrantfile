@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 #
@@ -14,9 +16,9 @@ boxes = {
 }
 
 vms = {
-  db1: {ip: '10', box: :debian, script: 'debian.sh'},
-  db2: {ip: '20', box: :debian, script: 'debian.sh'},
-  db3: {ip: '30', box: :debian, script: 'debian.sh'},
+  db1: {ip: '10', box: :debian, script: 'debian.sh', port: 3306},
+  db2: {ip: '20', box: :debian, script: 'debian.sh', port: 3307},
+  db3: {ip: '30', box: :debian, script: 'debian.sh', port: 3308},
   haproxy: {memory: 256, cpus: 1, ip: '40', box: :debian, script: 'haproxy.sh'},
   monitor: {cpus: 2, memory: 2048, ip: '50', box: :debian, script: 'debian.sh'},
   rhel_demo: {ip: '60', box: :alma, script: 'rhel.sh', memory: 2048}
@@ -39,16 +41,21 @@ Vagrant.configure('2') do |config|
 
   # Virtualbox
   vms.each do |name, conf|
-    name = name.to_s.sub('_', '-')  # symbols no Ruby não aceitam "-", já o Virtualbox não aceita nome de VMs com "_"
-    config.vm.define "#{name}" do |my|
+    vm_name = name.to_s.sub('_', '-')  # symbols no Ruby não aceitam "-", já o Virtualbox não aceita nome de VMs com "_"
+    config.vm.define vm_name do |my|
       args = [conf['fork'] || 'mysql', conf['sample'] || 0]
       my.vm.box = boxes[conf[:box]]
-      my.vm.hostname = "#{name}.example.com"
+      my.vm.hostname = "#{vm_name}.example.com"
       my.vm.network 'private_network', ip: "172.27.11.#{conf[:ip]}"
+
+      if vms[name].has_key?(:port)
+        my.vm.network "forwarded_port", guest: 3306, host: vms[name][:port]
+      end
+
       my.vm.provision 'shell', path: "provision/#{conf[:script]}", args: args
 
       my.vm.provider 'virtualbox' do |vb|
-        vb.name = name
+        vb.name = vm_name
         vb.memory = conf[:memory] || resources[:memory]
         vb.cpus = conf[:cpus] || resources[:cpus]
         vb.customize ['modifyvm', :id, '--vram', '16']
