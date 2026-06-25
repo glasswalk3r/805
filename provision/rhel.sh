@@ -22,4 +22,4 @@ fi
 echo 'exclude=kernel*' >> /etc/dnf/dnf.conf
 
 dnf makecache && dnf update -y && dnf install epel-release -y && dnf makecache && \
-    dnf clean packages
+    dnf install -y wget && dnf clean packages
