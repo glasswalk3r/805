@@ -96,3 +96,61 @@ vagrant reload db1 --provision
 Isso vai reiniciar a VM e atualizar os pacotes, e aí com o kernel novo instalado, o vbguest conseguirá fazer o seu
 trabalho. Então permita que ele faça seu trabalho alterando a mesma linha no `Vagrantfile` para que fique igual a
 `true`, e então repita o mesmo comando de `reload` para isto aconteça.
+
+
+https://pypi.org/project/cpf/
+https://faker.readthedocs.io/
+
+```python
+import mysql.connector
+from mysql.connector import Error
+
+try:
+    # 1. Establish the database connection
+    connection = mysql.connector.connect(
+        host="localhost",       # Server address (e.g., localhost or IP)
+        user="root",            # Your MySQL username
+        password="your_password", # Your MySQL password
+        database="your_database_name"
+    )
+
+    if connection.is_connected():
+        print("Successfully connected to MySQL database")
+        cursor = connection.cursor()
+
+        # 2. Create a Table (if it doesn't exist)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(100) NOT NULL,
+                email VARCHAR(100) NOT NULL
+            )
+        """)
+
+        # 3. Securely Insert Data (Parameterized Query)
+        insert_query = "INSERT INTO users (name, email) VALUES (%s, %s)"
+        user_data = ("Alice Smith", "alice@example.com")
+        cursor.execute(insert_query, user_data)
+
+        # Save changes to the database
+        connection.commit()
+        print(f"Inserted record ID: {cursor.lastrowid}")
+
+        # 4. Fetch and Read Data
+        cursor.execute("SELECT id, name, email FROM users")
+        records = cursor.fetchall()
+
+        print("\n--- User Directory ---")
+        for row in records:
+            print(f"ID: {row[0]} | Name: {row[1]} | Email: {row[2]}")
+
+except Error as e:
+    print(f"Error while connecting to MySQL: {e}")
+
+finally:
+    # 5. Always clean up and close connections
+    if 'connection' in locals() and connection.is_connected():
+        cursor.close()
+        connection.close()
+        print("\nMySQL connection is safely closed")
+```
