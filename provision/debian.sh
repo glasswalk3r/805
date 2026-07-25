@@ -2,6 +2,8 @@
 
 set -eo pipefail
 
+. /tmp/debian-ntp.sh
+
 if [[ -d /vagrant ]]
 then
     for file in /vagrant/files/key /vagrant/files/key.pub /vagrant/files/key.pub
@@ -31,4 +33,7 @@ fi
 export DEBIAN_FRONTEND=noninteractive
 
 apt-get update && apt-get upgrade -y && \
-    apt-get install -y gnupg2 vim linux-image-amd64 zstd build-essential dkms
+    apt-get install -y gnupg2 vim linux-image-amd64 zstd build-essential dkms chrony && \
+    apt-get autoremove -y && apt-get clean
+
+set_ntp

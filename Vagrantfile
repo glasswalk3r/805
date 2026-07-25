@@ -48,11 +48,13 @@ Vagrant.configure('2') do |config|
       my.vm.hostname = "#{vm_name}.example.com"
       my.vm.network 'private_network', ip: "172.27.11.#{conf[:ip]}"
 
-      if vms[name].has_key?(:port)
+      if vms[name].has_key?(:port)  # executa um servidor MySQL
         my.vm.network "forwarded_port", guest: 3306, host: vms[name][:port]
       end
 
       my.vm.provision 'shell', path: "provision/#{conf[:script]}", args: args
+      # garante a configuração de NTP mesmo que o Virtual Guest Additions esteja quebrado
+      my.vm.provision 'file', source: 'provision/debian-ntp.sh', destination: '/tmp'
 
       my.vm.provider 'virtualbox' do |vb|
         vb.name = vm_name

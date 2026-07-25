@@ -1,15 +1,25 @@
 #!/bin/bash
 
-# Copia a chave SSH
-mkdir -p /root/.ssh
-cp /vagrant/files/key /root/.ssh/id_rsa
-cp /vagrant/files/key.pub /root/.ssh/id_rsa.pub
-cp /vagrant/files/key.pub /root/.ssh/authorized_keys
-chmod 400 /root/.ssh/*
+set -eo pipefail
 
-# Atualiza pacotes e prepara a máquina
+. /vagrant/provision/debian-ntp.sh
+
+if [[ -d /vagrant ]]
+then
+    mkdir -p /root/.ssh
+    cp /vagrant/files/key /root/.ssh/id_rsa
+    cp /vagrant/files/key.pub /root/.ssh/id_rsa.pub
+    cp /vagrant/files/key.pub /root/.ssh/authorized_keys
+    chmod 400 /root/.ssh/*
+fi
+
 rm -rf /etc/apt/sources.list.d/mysql.list
-apt-get update && apt-get install -y haproxy vim mariadb-client
+
+export DEBIAN_FRONTEND=noninteractive
+
+apt-get update && apt-get upgrade -y && \
+    apt-get install -y haproxy vim mariadb-client && \
+    apt-get autoremove -y && apt-get clean
 
 cat > /etc/haproxy/haproxy.cfg <<EOF
 # Load Balancing for Galera Cluster
@@ -34,3 +44,5 @@ EOF
 
 systemctl restart haproxy
 systemctl enable haproxy
+
+set_ntp

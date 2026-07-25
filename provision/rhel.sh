@@ -22,4 +22,11 @@ fi
 echo 'exclude=kernel*' >> /etc/dnf/dnf.conf
 
 dnf makecache && dnf update -y && dnf install epel-release -y && dnf makecache && \
-    dnf install -y wget && dnf clean packages
+    dnf install -y wget chrony && dnf clean packages
+
+
+timedatectl set-timezone America/Sao_Paulo
+sed -i -e '/pool/d' /etc/chrony.conf
+cat /vagrant/provision/ntp-br.conf >> /etc/chrony.conf
+systemctl restart chronyd
+timedatectl status

@@ -80,6 +80,8 @@ vagrant ssh db1
 
 ## Resolvendo problemas
 
+### Virtual Guest Additions desatualizado
+
 Pode ser que a versão do Virtual Guest Additions instalada seja incompatível com a versão do Virtualbox que você tenha
 instalado na máquina hospedeira.
 
@@ -90,6 +92,8 @@ Para evitar isso, instale o plug-in do Vagrant chamado [vbguest](https://github.
 ```bash
 vagrant plugin install vbguest
 ```
+
+### Kernel do Linux desatualizado
 
 Caso você já tenha o plug-in instalado, pode ser que vbguest falhe por não achar o pacote correto para instalar e criar
 o módulo do Virtual Guest Additions junto ao kernel atualizado.
@@ -109,3 +113,28 @@ vagrant reload db1 --provision
 Isso vai reiniciar a VM e atualizar os pacotes, e aí com o kernel novo instalado, o vbguest conseguirá fazer o seu
 trabalho. Então permita que ele faça seu trabalho alterando a mesma linha no `Vagrantfile` para que fique igual a
 `true`, e então repita o mesmo comando de `reload` para isto aconteça.
+
+### Travamento por falta de X.Org ou XFree86
+
+Pode ser que o vbguest faça todo o trabalho corretamente, mas trave logo após as mensagens abaixo:
+
+```
+VirtualBox Guest Additions: Could not find the X.Org or XFree86 Window System,
+skipping.
+VirtualBox Guest Additions: Starting.
+VirtualBox Guest Additions: reloading kernel modules and services
+VirtualBox Guest Additions: kernel modules and services 7.1.18 r173720 reloaded
+VirtualBox Guest Additions: NOTE: you may still consider to re-login if some
+user session specific services (Shared Clipboard, Drag and Drop, Seamless or
+Guest Screen Resize) were not restarted automatically
+```
+
+Use CRTL+C duas vezes para interromper e reinicie a VM (no exemplo abaixo, db2):
+
+```bash
+^C==> db2: Waiting for cleanup before exiting...
+^C==> db2: Exiting immediately, without cleanup!
+Unmounting Virtualbox Guest Additions ISO from: /mnt
+Vagrant exited after cleanup due to external interrupt.
+$ vagrant reload db2
+```
