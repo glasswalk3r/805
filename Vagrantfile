@@ -19,6 +19,7 @@ vms = {
   db1: {ip: '10', box: :debian, script: 'debian.sh', port: 3306},
   db2: {ip: '20', box: :debian, script: 'debian.sh', port: 3307},
   db3: {ip: '30', box: :debian, script: 'debian.sh', port: 3308},
+  # se você precisar instalar um novo kernel, o haproxy vai precisar de 1024 de memória
   haproxy: {memory: 256, cpus: 1, ip: '40', box: :debian, script: 'haproxy.sh'},
   monitor: {cpus: 2, memory: 2048, ip: '50', box: :debian, script: 'debian.sh'},
   rhel_demo: {ip: '60', box: :alma, script: 'rhel.sh', memory: 2048}
@@ -45,7 +46,8 @@ Vagrant.configure('2') do |config|
     config.vm.define vm_name do |my|
       args = [conf['fork'] || 'mysql', conf['sample'] || 0]
       my.vm.box = boxes[conf[:box]]
-      my.vm.hostname = "#{vm_name}.example.com"
+      my.vm.hostname = vm_name
+      my.vm.manage_hosts = false
       my.vm.network 'private_network', ip: "172.27.11.#{conf[:ip]}"
 
       if vms[name].has_key?(:port)  # executa um servidor MySQL
