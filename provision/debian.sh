@@ -32,8 +32,10 @@ fi
 
 export DEBIAN_FRONTEND=noninteractive
 
-apt-get update && apt-get upgrade -y && \
-    apt-get install -y gnupg2 vim linux-image-amd64 zstd build-essential dkms chrony && \
-    apt-get autoremove -y && apt-get clean
+apt-get update && apt-get upgrade -y
+apt-get install -y gnupg2 vim linux-image-amd64 zstd build-essential dkms chrony
+apt-get dist-upgrade # force kernel upgrade
+apt-get autoremove -y
+apt-get clean
 
 set_ntp

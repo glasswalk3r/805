@@ -114,6 +114,22 @@ Isso vai reiniciar a VM e atualizar os pacotes, e aí com o kernel novo instalad
 trabalho. Então permita que ele faça seu trabalho alterando a mesma linha no `Vagrantfile` para que fique igual a
 `true`, e então repita o mesmo comando de `reload` para isto aconteça.
 
+Agora, se mesmo assim o kernel não for atualizado e você ver algo assim depois de rodar a atualização:
+
+
+```bash
+root@haproxy:/etc/apt# apt-get upgrade -y
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+Calculating upgrade... Done
+The following packages have been kept back:
+  linux-image-amd64
+0 upgraded, 0 newly installed, 0 to remove and 1 not upgraded
+```
+
+Você vai precisar executar o comando `apt-get dist-upgrade` para corrigir isso.
+
 ### Travamento por falta de X.Org ou XFree86
 
 Pode ser que o vbguest faça todo o trabalho corretamente, mas trave logo após as mensagens abaixo:
