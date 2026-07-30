@@ -18,7 +18,7 @@ def profession_provider():
 
 
 parser = ArgumentParser(
-    description="Insere N registros de dados gerados automaticamente na tabela curso.users",
+    description="Insere N registros de dados gerados automaticamente na tabela curso.usuarios",
     formatter_class=ArgumentDefaultsHelpFormatter,
 )
 parser.add_argument(
