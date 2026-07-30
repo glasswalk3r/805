@@ -1,5 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
+#
+# Para quê serve esse Vagrantfile aqui? Não sei, não foi abordado no curso! :-)
 
 vms = {
   'data1' => {'memory' => '2048', 'cpus' => 2, 'ip' => '11'},
