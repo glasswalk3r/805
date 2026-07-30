@@ -47,7 +47,7 @@ Vagrant.configure('2') do |config|
       args = [conf['fork'] || 'mysql', conf['sample'] || 0]
       my.vm.box = boxes[conf[:box]]
       my.vm.hostname = vm_name
-      my.vm.manage_hosts = false
+      my.hostmanager.manage_hosts = false
       my.vm.network 'private_network', ip: "172.27.11.#{conf[:ip]}"
 
       if vms[name].has_key?(:port)  # executa um servidor MySQL
