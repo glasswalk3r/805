@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Scripts to help learning MySQL"
 requires-python = ">=3.12"
 dependencies = [
+    "faker>=40.36.0",
     "mysql-connector-python>=9.7.0",
     "python-dotenv>=1.2.2",
     "tqdm>=4.69.0",
