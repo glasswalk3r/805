@@ -23,6 +23,9 @@ resources = {
   memory: 1024
 }
 
+# IPs estáticos de cada VM, indexados pelo nome já convertido (com "-"), para o ip_resolver do hostmanager abaixo.
+vm_ips = vms.each_with_object({}) { |(name, conf), h| h[name.to_s.sub('_', '-')] = "172.27.11.#{conf[:ip]}" }
+
 Vagrant.configure('2') do |config|
 
   # Desativa verificação automatica de atualização do BOX a cada vagrant up.
@@ -33,23 +36,38 @@ Vagrant.configure('2') do |config|
   # Necessário instalar o plugin: vagrant plugin install vagrant-disksize
   # config.disksize.size = '10GB'
 
-  # Virtualbox
+  config.hostmanager.enabled = true
+  config.hostmanager.manage_host = false
+  config.hostmanager.manage_guest = true
+  config.hostmanager.include_offline = true
+  config.hostmanager.ignore_private_ip = false
+
+  # Os boxes Debian já vêm com uma linha "127.0.1.1 <hostname>" no /etc/hosts, criada antes da rede privada subir.
+  # Sem isso, o resolver padrão do hostmanager entra em cada VM via SSH para descobrir o IP e acaba pegando essa
+  # linha em vez do IP da rede privada, propagando "127.0.1.1 <hostname>" para o /etc/hosts de todas as VMs (e do
+  # host) — o que quebra a resolução de nome usada pelo InnoDB Cluster/Galera entre os nós.
+  config.hostmanager.ip_resolver = proc do |machine, _resolving_machine|
+    vm_ips[machine.name.to_s]
+  end
+
   vms.each do |name, conf|
     vm_name = name.to_s.sub('_', '-')  # symbols no Ruby não aceitam "-", já o Virtualbox não aceita nome de VMs com "_"
     config.vm.define vm_name do |my|
       args = [conf['fork'] || 'mysql', conf['sample'] || 0]
       my.vm.box = boxes[conf[:box]]
       my.vm.hostname = vm_name
-      my.hostmanager.manage_hosts = false
       my.vm.network 'private_network', ip: "172.27.11.#{conf[:ip]}"
 
       if vms[name].has_key?(:port)  # executa um servidor MySQL
         my.vm.network "forwarded_port", guest: 3306, host: vms[name][:port]
       end
 
+      my.vm.provision 'file', source: 'provision/debian-ntp.sh', destination: '/tmp/debian-ntp.sh'
+      my.vm.provision 'file', source: 'provision/ssh-keys.sh', destination: '/tmp/ssh-keys.sh'
+      my.vm.provision 'file', source: 'provision/ntp-br.conf', destination: '/tmp/ntp-br.conf'
       my.vm.provision 'shell', path: "provision/#{conf[:script]}", args: args
-      # garante a configuração de NTP mesmo que o Virtual Guest Additions esteja quebrado
-      my.vm.provision 'file', source: 'provision/debian-ntp.sh', destination: '/tmp'
+
+      my.vbguest.auto_update = false
 
       my.vm.provider 'virtualbox' do |vb|
         vb.name = vm_name
@@ -60,8 +78,6 @@ Vagrant.configure('2') do |config|
         vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', '1', '--device', '0',
                       '--type', 'dvddrive', '--medium', 'emptydrive']
       end
-
-      my.vbguest.auto_update = true
 
       my.vm.provider 'libvirt' do |lv|
         lv.memory = conf[:memory] || resources[:memory]
