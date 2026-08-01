@@ -3,6 +3,7 @@
 set -eo pipefail
 
 . /tmp/debian-ntp.sh
+. /tmp/ssh-keys.sh
 
 # Remove a linha "127.0.1.1 <hostname>" que o Debian adiciona por padrão: ela atrapalha a resolução de nomes entre
 # os nós do cluster (InnoDB Cluster/Galera), já que outras VMs precisam resolver o hostname para o IP da rede
@@ -33,10 +34,13 @@ else
 fi
 
 export DEBIAN_FRONTEND=noninteractive
+echo 'grub-pc grub-pc/install_devices multiselect /dev/sda' | sudo debconf-set-selections
 
-apt-get update && apt-get upgrade -y
-apt-get install -y gnupg2 vim linux-image-amd64 zstd build-essential dkms chrony
-apt-get dist-upgrade # force kernel upgrade
+apt-get update
+apt-get install -y zstd # para compressão de novos kernels
+apt-get upgrade -y
+apt-get install -y gnupg2 vim linux-image-amd64 build-essential dkms chrony
+apt-get dist-upgrade # força o upgrade de versão de kernel
 apt-get autoremove -y
 apt-get clean
 

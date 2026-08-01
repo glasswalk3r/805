@@ -9,22 +9,21 @@ set -eo pipefail
 systemctl mask vagrant.mount
 systemctl stop vagrant.mount 2>/dev/null || true
 
-if [[ -d /vagrant ]]
-then
-    mkdir -p /root/.ssh
-    cp /vagrant/files/key /root/.ssh/id_rsa
-    cp /vagrant/files/key.pub /root/.ssh/id_rsa.pub
-    cp /vagrant/files/key.pub /root/.ssh/authorized_keys
-    chmod 400 /root/.ssh/*
-fi
+. /tmp/debian-ntp.sh
+. /tmp/ssh-keys.sh
 
 rm -rf /etc/apt/sources.list.d/mysql.list
 
 export DEBIAN_FRONTEND=noninteractive
+echo 'grub-pc grub-pc/install_devices multiselect /dev/sda' | sudo debconf-set-selections
 
-apt-get update && apt-get upgrade -y && \
-    apt-get install -y haproxy vim mariadb-client && \
-    apt-get autoremove -y && apt-get clean
+apt-get update
+apt-get install -y zstd # para compressão de novos kernels
+apt-get upgrade -y
+apt-get dist-upgrade -y # força o upgrade de versão de kernel
+apt-get install -y haproxy vim mariadb-client
+apt-get autoremove -y
+apt-get clean
 
 cat > /etc/haproxy/haproxy.cfg <<EOF
 # Load Balancing for Galera Cluster
