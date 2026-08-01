@@ -4,17 +4,19 @@ set -eo pipefail
 
 . /tmp/debian-ntp.sh
 
-if [[ -d /vagrant ]]
-then
-    for file in /vagrant/files/key /vagrant/files/key.pub /vagrant/files/key.pub
-    do
-        if [[ -f $file ]]
-        then
-            cp -v $file /root/.ssh/
-        fi
-    done
-    chmod 400 /root/.ssh/*
-fi
+# Remove a linha "127.0.1.1 <hostname>" que o Debian adiciona por padrão: ela atrapalha a resolução de nomes entre
+# os nós do cluster (InnoDB Cluster/Galera), já que outras VMs precisam resolver o hostname para o IP da rede
+# privada, e não para loopback.
+sed -i '/^127\.0\.1\.1/d' /etc/hosts
+
+# O Vagrant monta o /vagrant duas vezes: uma via SSH logo que a VM sobe, e outra pela entrada persistente que ele
+# mesmo escreve em /etc/fstab (com _netdev). Como essa segunda é montada pelo systemd, ela entra no remote-fs.target
+# e atrasa o desligamento da VM esperando a rede cair. Mascarar a unit evita esse segundo mount sem afetar o
+# primeiro, que não passa pelo systemd.
+systemctl mask vagrant.mount
+systemctl stop vagrant.mount 2>/dev/null || true
+
+set_root_keys
 
 # Cria swap se não existir
 swap_check=$(swapon -v)
