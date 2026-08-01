@@ -9,7 +9,22 @@ repositório original.
 
 - Melhorias na virtualização com o Vagrant: melhor desempenho, configuração simplificada.
 - Scripts: no diretório `scripts` você vai encontrar programas de CLI escritos em Python, que substituem os anteriores escritos em Perl ou ainda shell scripts usados na apostila.
+- Configuração de NTP e fuso horário do Brasil.
 - Mais bonito e mais cheiroso do que o original.
+
+## Requisitos de software
+
+Você irá precisar para conseguir executar as coisas neste repositório:
+
+1. Vagrant versão 2.4.9 ou compatível
+1. Python versão 3.12 ou maior
+1. VirtualBox versão 7.1 ou compatível
+1. uv versão 0.11.8 (somente para rodar os scripts Python)
+
+E alguns *plug-ins* do Vagrant:
+
+1. [vbguest](https://github.com/dotless-de/vagrant-vbguest)
+1. [Vagrant Host Manager](https://github.com/devopsgroup-io/vagrant-hostmanager)
 
 ## Provisionamento
 
