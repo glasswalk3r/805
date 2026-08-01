@@ -2,16 +2,10 @@
 
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
-#
-# forks: mysql, mariadb ou percona
-# memory, cpus, fork and sample are optional, defaults do:
-#   1024,    2, mysql     and 0 respectively
 
 # Boxes: https://portal.cloud.hashicorp.com/vagrant/discover
 boxes = {
   debian: 'debian/bookworm64',
-  centos: 'centos/stream9',
-  rocky: 'rockylinux/9',
   alma: 'almalinux/9'
 }
 
@@ -19,8 +13,7 @@ vms = {
   db1: {ip: '10', box: :debian, script: 'debian.sh', port: 3306},
   db2: {ip: '20', box: :debian, script: 'debian.sh', port: 3307},
   db3: {ip: '30', box: :debian, script: 'debian.sh', port: 3308},
-  # se você precisar instalar um novo kernel, o haproxy vai precisar de 1024 de memória
-  haproxy: {memory: 256, cpus: 1, ip: '40', box: :debian, script: 'haproxy.sh'},
+  haproxy: {cpus: 1, ip: '40', box: :debian, script: 'haproxy.sh'},
   monitor: {cpus: 2, memory: 2048, ip: '50', box: :debian, script: 'debian.sh'},
   rhel_demo: {ip: '60', box: :alma, script: 'rhel.sh', memory: 2048}
 }
