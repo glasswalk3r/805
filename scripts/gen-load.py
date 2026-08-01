@@ -3,12 +3,12 @@
 import os
 import random
 import string
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from time import sleep
 
 import mysql.connector
-from mysql.connector import Error
 from dotenv import load_dotenv
+from mysql.connector import Error
 from tqdm import tqdm
 
 ALPHABET = string.ascii_letters + string.digits
@@ -19,9 +19,7 @@ parser = ArgumentParser(
     description="Insere dados randômicos na tabela seed do banco de dados curso para simular carga",
     formatter_class=ArgumentDefaultsHelpFormatter,
 )
-parser.add_argument(
-    "--repeat", help="Quantas vezes a operação deve ser repetida", default=5000
-)
+parser.add_argument("--repeat", help="Quantas vezes a operação deve ser repetida", default=5000)
 parser.add_argument(
     "--sleep",
     help="Tempo de espera entre uma inserção e outra, em segundos",
