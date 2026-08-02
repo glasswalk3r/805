@@ -73,6 +73,10 @@ Vagrant.configure('2') do |config|
         vb.name = vm_name
         vb.memory = conf[:memory] || resources[:memory]
         vb.cpus = conf[:cpus] || resources[:cpus]
+        # linked_clone economiza espaço em disco compartilhando uma única master image entre as VMs Debian.
+        # Como o rhel_demo é a única VM usando o box AlmaLinux, não há master a compartilhar: pular aqui evita o
+        # custo de criar uma master image (e o snapshot associado) que serviria a uma única VM.
+        vb.linked_clone = true unless name == :rhel_demo
         vb.customize ['modifyvm', :id, '--vram', '16']
         vb.customize ['modifyvm', :id, '--graphicscontroller', 'vmsvga']
         vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', '1', '--device', '0',
